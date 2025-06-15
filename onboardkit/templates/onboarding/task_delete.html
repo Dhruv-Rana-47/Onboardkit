@@ -1,0 +1,9 @@
+{% if task.can_be_edited_by.request.user %}
+<form method="post" action="{% url 'onboarding:task_delete' task.pk %}" class="d-inline">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-outline-danger w-100" 
+            onclick="return confirm('Are you sure you want to delete this task?')">
+        <i class="bi bi-trash"></i> Delete Task
+    </button>
+</form>
+{% endif %}

@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Mentor Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Mentor Dashboard</h1>
+</div>
+<div class="btn-toolbar mb-3">
+    <div class="btn-group me-2">
+        <a href="{% url 'messaging:compose_message' %}" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-envelope-plus"></i> New Message
+        </a>
+        <a href="{% url 'onboarding:template_create' %}" class="btn btn-sm btn-outline-success">
+            <i class="bi bi-file-earmark-plus"></i> New Template
+        </a>
+
+        <a href="{% url 'onboarding:task_create' %}" class="btn btn-sm btn-outline-info">
+            <i class="bi bi-plus-circle"></i> New Task
+        </a>
+         <a href="{% url 'onboarding:task_list' %}" class="btn btn-primary">
+                <i class="bi bi-list-task"></i> View All Tasks
+            </a>
+    </div>
+</div>
+<div class="row mb-3">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Mentees</h5>
+                <p class="card-text display-4">{{ mentees.count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Pending Tasks</h5>
+                <p class="card-text display-4">{{ pending_tasks.count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Templates</h5>
+                <p class="card-text display-4">{{ templates.count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3"> <!-- Change all cols to md-3 -->
+        <div class="card text-white bg-danger mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Unread Messages</h5>
+                <p class="card-text display-4">{{ unread_messages }}</p>
+                <!-- <small class="opacity-75">Since {{ last_login|date:"M d" }}</small> -->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- templates/dashboard/mentor_dashboard.html -->
+<div class="list-group">
+  {% for mentee in mentees %}
+  <div class="list-group-item">
+    <div class="d-flex align-items-center">
+      <!-- Profile Picture -->
+      <img src="{{ mentee.profile.avatar.url|default:'/static/default-avatar.png' }}" 
+           class="rounded-circle me-3" 
+           width="60" 
+           alt="{{ mentee.username }}">
+      
+      <!-- Profile Details -->
+      <div class="flex-grow-1">
+        <h5>{{ mentee.get_full_name }}</h5>
+        <p class="text-muted mb-1">{{ mentee.profile.department }}</p>
+        <p class="small">{{ mentee.profile.bio|truncatechars:100 }}</p>
+        
+        <!-- Progress Bar -->
+        <div class="progress mt-2" style="height: 8px;">
+          <div class="progress-bar" style="width: {{ mentee.task_progress }}%"></div>
+        </div>
+      </div>
+      
+      <!-- Actions -->
+      <div class="btn-group">
+        <a href="{% url 'messaging:compose_message' %}?to={{ mentee.id }}" 
+           class="btn btn-sm btn-outline-primary">
+          <i class="bi bi-envelope"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Task</th>
+                <th>Mentee</th>
+                <th>Due</th>
+                <th>Priority</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in pending_tasks %}
+            <tr class="{% if task.is_overdue %}table-danger{% endif %}">
+                <td>
+                    <a href="{% url 'onboarding:task_detail' task.pk %}">
+                        {{ task.get_task_title|truncatechars:30 }}
+                    </a>
+                </td>
+                <td>{{ task.user.first_name }}</td>
+                <td>{{ task.due_date|date:"M d"|default:"-" }}</td>
+                <td>
+                    <span class="badge bg-{% if task.priority == 'HIGH' %}danger{% else %}warning{% endif %}">
+                        {{ task.get_priority_display }}
+                    </span>
+                </td>
+                <td>
+                    <a href="{% url 'messaging:compose_message' %}?task={{ task.pk }}" class="btn btn-sm btn-outline-secondary"
+                        title="Send reminder">
+                        <i class="bi bi-bell"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center text-muted">No pending tasks</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+    // Task reminder tooltips
+    document.querySelectorAll('[title^="Send reminder"]').forEach(el => {
+        new bootstrap.Tooltip(el);
+    });
+
+    // Auto-refresh dashboard every 5 minutes
+    setTimeout(() => { location.reload() }, 300000);
+</script>
+{% endblock %}

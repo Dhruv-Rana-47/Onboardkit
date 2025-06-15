@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Analytics Dashboard</h2>
+    
+    <!-- Date Range Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get">
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Stats -->
+    {% if user_stats %}
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5>Total Users</h5>
+                    <h3>{{ user_stats.total }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5>Admins</h5>
+                    <h3>{{ user_stats.admins }}</h3>
+                </div>
+            </div>
+        </div>
+        <!-- Add similar cards for mentors/juniors -->
+    </div>
+    {% endif %}
+
+    <!-- Task Statistics -->
+    <div class="card">
+        <div class="card-header">
+            <h4>Task Completion</h4>
+        </div>
+        <div class="card-body">
+            <p>Total Tasks: {{ task_stats.total }}</p>
+            <p>Completed: {{ task_stats.completed }}</p>
+            <!-- Add charts here later -->
+        </div>
+    </div>
+</div>
+{% endblock %}

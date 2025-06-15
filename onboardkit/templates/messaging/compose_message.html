@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between">
+            <h4>
+                {% if is_reply %}<i class="bi bi-reply"></i> Reply
+                {% else %}<i class="bi bi-envelope-plus"></i> New Message
+                {% endif %}
+            </h4>
+            {% if recipient %}
+            <span class="text-muted">To: {{ recipient.get_full_name }}</span>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div class="form-group mt-3">
+                    <label>Attachments</label>
+                    <input type="file" name="attachments" multiple class="form-control">
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send"></i> Send
+                    </button>
+                    <a href="{% url 'messaging:inbox' %}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

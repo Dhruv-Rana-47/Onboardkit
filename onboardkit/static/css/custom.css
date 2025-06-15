@@ -1,0 +1,9 @@
+.accordion-item.sortable-chosen {
+    background-color: #f8f9fa;
+}
+.list-group-item.sortable-chosen {
+    background-color: #f8f9fa;
+}
+.handle:hover, .item-handle:hover {
+    color: #0d6efd;
+}

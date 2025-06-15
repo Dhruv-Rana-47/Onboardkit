@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ template.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{{ template.name }}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'onboarding:template_edit' template.pk %}" class="btn btn-sm btn-outline-secondary me-2">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        <a href="{% url 'onboarding:template_delete' template.pk %}" class="btn btn-sm btn-outline-danger">
+            <i class="bi bi-trash"></i> Delete
+        </a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Description</h5>
+        <p class="card-text">{{ template.description }}</p>
+        <div class="d-flex">
+            <span class="badge bg-{% if template.role == 'ADMIN' %}danger{% elif template.role == 'SENIOR' %}warning{% else %}primary{% endif %} me-2">
+                {{ template.get_role_display }}
+            </span>
+            <small class="text-muted">Created by {{ template.created_by.get_full_name }} on {{ template.created_at|date:"M d, Y" }}</small>
+        </div>
+    </div>
+</div>
+
+<div id="sections-container"
+     hx-post="{% url 'onboarding:reorder_sections' template.pk %}"
+     hx-trigger="end"
+     hx-swap="none"
+     class="mb-3">
+    {% for section in template.sections.all %}
+    <div class="accordion-item" data-id="{{ section.id }}" draggable="true">
+        <h2 class="accordion-header" id="heading{{ section.pk }}">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                    data-bs-target="#collapse{{ section.pk }}" aria-expanded="false">
+                <i class="bi bi-grip-vertical me-2 handle" style="cursor: move;"></i>
+                {{ section.title }}
+                <span class="ms-auto">
+                    <a href="{% url 'onboarding:section_edit' section.pk %}" class="btn btn-sm btn-outline-secondary ms-2">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+                    <button type="button" 
+                            class="btn btn-sm btn-outline-danger ms-1" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#deleteModal"
+                            data-form="form-section-{{ section.pk }}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                    <form method="post" action="{% url 'onboarding:section_delete' section.pk %}" 
+                          id="form-section-{{ section.pk }}" class="d-none">
+                        {% csrf_token %}
+                    </form>
+                </span>
+            </button>
+        </h2>
+        <div id="collapse{{ section.pk }}" class="accordion-collapse collapse" 
+             aria-labelledby="heading{{ section.pk }}">
+            <div class="accordion-body">
+                <div class="item-list"
+                     hx-post="{% url 'onboarding:reorder_items' section.pk %}"
+                     hx-trigger="end"
+                     hx-swap="none">
+                    {% for item in section.items.all %}
+                    <div class="list-group-item mb-2" data-id="{{ item.id }}" draggable="true">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-grip-vertical me-2 item-handle" style="cursor: move;"></i>
+                                <h5 class="mb-1 me-3">
+                                    {% if item.item_type == 'GUIDE' %}
+                                        <i class="bi bi-file-text text-primary"></i>
+                                    {% elif item.item_type == 'VIDEO' %}
+                                        <i class="bi bi-play-circle text-danger"></i>
+                                    {% elif item.item_type == 'DOC' %}
+                                        <i class="bi bi-file-earmark-text text-success"></i>
+                                    {% else %}
+                                        <i class="bi bi-list-task text-warning"></i>
+                                    {% endif %}
+                                    {{ item.title }}
+                                </h5>
+                                <small class="text-muted">{{ item.get_item_type_display }}</small>
+                            </div>
+                            {% if template.templateassignment_set.all %}
+<div class="card mb-3">
+    <div class="card-header">
+        <h5>Current Assignments</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Assignee</th>
+                        <th>Assigned By</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assignment in template.templateassignment_set.all %}
+                    <tr>
+                        <td>{{ assignment.assignee.get_full_name }}</td>
+                        <td>{{ assignment.assigned_by.get_full_name }}</td>
+                        <td>{{ assignment.due_date|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="badge bg-{% if assignment.is_completed %}success{% else %}warning{% endif %}">
+                                {% if assignment.is_completed %}Completed{% else %}Pending{% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+                            <div>
+                                <a href="{% url 'onboarding:item_edit' item.pk %}" class="btn btn-sm btn-outline-secondary me-1">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                <button type="button" 
+                                        class="btn btn-sm btn-outline-danger" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#deleteModal"
+                                        data-form="form-item-{{ item.pk }}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                <form method="post" action="{% url 'onboarding:item_delete' item.pk %}" 
+                                      id="form-item-{{ item.pk }}" class="d-none">
+                                    {% csrf_token %}
+                                </form>
+                            </div>
+                        </div>
+                        {% if item.content %}
+                        <p class="mb-1 mt-2 ps-4">{{ item.content }}</p>
+                        {% endif %}
+                        {% if item.video_url %}
+                        <div class="mt-2 ps-4">
+                            <a href="{{ item.video_url }}" target="_blank" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-play-fill"></i> Watch Video
+                            </a>
+                        </div>
+                        {% endif %}
+                        {% if item.document %}
+                        <div class="mt-2 ps-4">
+                            <a href="{{ item.document.url }}" target="_blank" class="btn btn-sm btn-outline-success">
+                                <i class="bi bi-download"></i> Download Document
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-3">
+                    <a href="{% url 'onboarding:item_create' section.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-plus"></i> Add Item
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+    <a href="{% url 'onboarding:section_create' template.pk %}" class="btn btn-primary me-md-2">
+        <i class="bi bi-plus-circle"></i> Add Section
+    </a>
+    <a href="{% url 'onboarding:assign_template' template.pk %}" class="btn btn-success">
+        <i class="bi bi-send"></i> Assign to Users
+    </a>
+</div>
+
+<script src="{% static 'js/dragdrop.js' %}"></script>
+{% endblock %}

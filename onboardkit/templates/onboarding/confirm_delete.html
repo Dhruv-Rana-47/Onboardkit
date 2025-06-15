@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Template{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card border-danger">
+        <div class="card-header bg-danger text-white">
+            <h2><i class="bi bi-exclamation-triangle"></i> Confirm Deletion</h2>
+        </div>
+        <div class="card-body">
+            <p>Are you sure you want to delete the template <strong>{{ object.name }}</strong>?</p>
+            <p class="text-danger">This action cannot be undone and will delete all associated sections and items.</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Confirm Delete
+                </button>
+                <a href="{% url 'onboarding:template_detail' object.pk %}" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

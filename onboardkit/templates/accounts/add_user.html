@@ -1,0 +1,73 @@
+
+ {% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Add New User{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Add New User</h1>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form.username|as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.email|as_crispy_field }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form.first_name|as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.last_name|as_crispy_field }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form.role|as_crispy_field }}
+                </div>
+                <div class="col-md-6" id="mentor-field">
+                    {{ form.mentor|as_crispy_field }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form.password1|as_crispy_field }}
+                </div>
+                <div class="col-md-6">
+                    {{ form.password2|as_crispy_field }}
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save User</button>
+            <a href="{% url 'accounts:user_list' %}" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('id_role').addEventListener('change', function() {
+    const mentorField = document.getElementById('mentor-field');
+    if (this.value === 'JUNIOR') {
+        mentorField.style.display = 'block';
+    } else {
+        mentorField.style.display = 'none';
+    }
+});
+
+// Initialize visibility on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const roleSelect = document.getElementById('id_role');
+    const mentorField = document.getElementById('mentor-field');
+    if (roleSelect.value !== 'JUNIOR') {
+        mentorField.style.display = 'none';
+    }
+});
+</script>
+{% endblock %} 

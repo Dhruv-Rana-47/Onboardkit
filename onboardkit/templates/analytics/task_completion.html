@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Task Completion Report</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Mentor</th>
+                <th>Total Tasks</th>
+                <th>Completed</th>
+                <th>Completion Rate</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.assigned_by__username }}</td>
+                <td>{{ task.total }}</td>
+                <td>{{ task.completed }}</td>
+                <td>{{ task.completed|floatformat:2 }}%</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

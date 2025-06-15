@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Average Onboarding Time</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Average Time (days)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for time in times %}
+            <tr>
+                <td>{{ time.user__username }}</td>
+                <td>{{ time.avg_time.days|floatformat:1 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
