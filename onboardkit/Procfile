@@ -1,1 +1,1 @@
-web: gunicorn onboardkit.wsgi:application
+web: gunicorn config.wsgi:application
