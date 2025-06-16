@@ -2,8 +2,12 @@ services:
   - type: web
     name: onboardkit
     env: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+
     startCommand: gunicorn config.wsgi:application
+
     envVars:
       - key: DEBUG
         value: False
@@ -15,4 +19,5 @@ services:
         fromDatabase:
           name: onboardkit-db
           property: connectionString
+
     staticPublishPath: staticfiles
