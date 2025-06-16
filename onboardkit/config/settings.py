@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config, Csv
+import os
+import dj_database_url  # <- you'll add this if using DATABASE_URL on Render
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +24,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-9ggwy@is12si&9kf-9h@=j%e=snw2iw4$-#ozlfnk+r(v-1y_g'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = []
+DEBUG = config('DEBUG', default=False, cast=bool)
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default='127.0.0.1,localhost')
+# ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1').split(',')
+
 
 
 # Application definition
@@ -38,6 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django_cors_headers',
+    'django_extensions',
     'crispy_forms',
     'crispy_bootstrap5',
     'django_tables2',
@@ -51,6 +59,7 @@ INSTALLED_APPS = [
 MESSAGES_PER_PAGE = 10
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -82,17 +91,13 @@ WSGI_APPLICATION = 'onboardkit.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'onboarding_db',     # DB name
-        'USER': 'postgres',          # Your DB username
-        'PASSWORD': 'root', # Your DB password
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
 
+
+
+
+DATABASES = {
+    'default': dj_database_url.config(default=config('DATABASE_URL'))
+}
 
 
 # Password validation
@@ -129,7 +134,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+# STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -144,3 +149,11 @@ AUTH_USER_MODEL = 'accounts.User'
 
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGIN_URL = 'login'
+
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Only for production
+if not DEBUG:
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
