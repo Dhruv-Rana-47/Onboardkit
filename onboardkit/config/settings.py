@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'django_tables2',
     'django_filters',
+    'corsheaders'
     'accounts',
     'dashboard',
     'onboarding',
@@ -60,6 +61,7 @@ MESSAGES_PER_PAGE = 10
 
 MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
