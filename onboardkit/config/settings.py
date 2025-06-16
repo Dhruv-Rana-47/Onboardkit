@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'django_tables2',
     'django_filters',
-    'corsheaders'
+    'corsheaders',
     'accounts',
     'dashboard',
     'onboarding',
