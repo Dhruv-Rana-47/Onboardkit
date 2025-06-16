@@ -33,10 +33,6 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default='127.0.0.1,localhost
 # ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1').split(',')
 
 
-CORS_ALLOWED_ORIGINS = [
-    "https://onboardkit.onrender.com",  # Your Render domain
-    "http://localhost:5500",            # If testing with Live Server locally
-]
 
 # Application definition
 
@@ -74,7 +70,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'onboardkit.urls'
+ROOT_URLCONF = 'config.urls'
 import os
 TEMPLATES = [
     {
@@ -91,7 +87,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'onboardkit.wsgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # Database
