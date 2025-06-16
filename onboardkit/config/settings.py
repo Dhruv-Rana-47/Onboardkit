@@ -96,15 +96,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 
 
-# DATABASES = {
-#     'default': dj_database_url.config(default=config('DATABASE_URL'))
-# }
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=config('DATABASE_URL'),
-        engine='django.db.backends.postgresql_psycopg'
-    )
+    'default': dj_database_url.config(default=config('DATABASE_URL'))
 }
 
 # Password validation
