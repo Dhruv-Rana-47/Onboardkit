@@ -33,6 +33,10 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default='127.0.0.1,localhost
 # ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1').split(',')
 
 
+CORS_ALLOWED_ORIGINS = [
+    "https://onboardkit.onrender.com",  # Your Render domain
+    "http://localhost:5500",            # If testing with Live Server locally
+]
 
 # Application definition
 
