@@ -3,7 +3,7 @@ services:
     name: onboardkit
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn onboardkit.wsgi:application
+    startCommand: gunicorn config.wsgi:application
     envVars:
       - key: DEBUG
         value: False
