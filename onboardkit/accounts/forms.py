@@ -1,12 +1,12 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.contrib.auth import get_user_model
-from .models import User
+from .models import User,Role, Authority
 
 class UserRegistrationForm(UserCreationForm):
-    role = forms.ChoiceField(choices=User.ROLES)
+    role = forms.ModelChoiceField(queryset=Role.objects.all(), empty_label="Select Role")
     mentor = forms.ModelChoiceField(
-        queryset=User.objects.filter(role='SENIOR'),
+        queryset=User.objects.filter(role__name='SENIOR'),
         required=False,
         label="Assign Mentor (for interns)"
     )
@@ -21,8 +21,11 @@ class UserRegistrationForm(UserCreationForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data.get('role') == 'JUNIOR' and not cleaned_data.get('mentor'):
+        role = cleaned_data.get('role')
+        mentor = cleaned_data.get('mentor')
+        if role and role.name == 'JUNIOR' and not mentor:
             raise forms.ValidationError("Mentor is required for junior roles")
+
 
 class UserEditForm(forms.ModelForm):
     class Meta:
@@ -31,11 +34,22 @@ class UserEditForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['mentor'].queryset = User.objects.filter(role='SENIOR')
-        if self.instance.role != 'JUNIOR':
+        self.fields['mentor'].queryset = User.objects.filter(role__name='Senior')
+        if not self.instance.role or self.instance.role.name != 'Junior':
             self.fields['mentor'].widget = forms.HiddenInput()
 
 class UserFilterForm(forms.Form):
-    role = forms.ChoiceField(choices=[('', 'All Roles')] + list(User.ROLES), required=False)
+    role = forms.ModelChoiceField(queryset=Role.objects.all(), required=False, empty_label='All Roles')
     search = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': 'Search users...'}))
 
+class RoleForm(forms.ModelForm):
+    authorities = forms.ModelMultipleChoiceField(
+        queryset=Authority.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="Authorities"
+    )
+
+    class Meta:
+        model = Role
+        fields = ['name', 'report_to', 'authorities', 'description']

@@ -2,7 +2,7 @@ import django_filters
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from .models import User
-from .forms import forms
+from .forms import forms, Role
 
 class UserFilter(django_filters.FilterSet):
     search = django_filters.CharFilter(
@@ -11,10 +11,13 @@ class UserFilter(django_filters.FilterSet):
         widget=forms.TextInput(attrs={'placeholder': 'Search users...'})
     )
     
-    role = django_filters.ChoiceFilter(
-        choices=[('', 'All Roles')] + list(User.ROLES),
-        empty_label='All Roles'
+    role = django_filters.ModelChoiceFilter(
+        queryset=Role.objects.all(),
+        label='Role',
+        empty_label='All Roles',
+        widget=forms.Select(attrs={'class': 'form-select'})
     )
+
 
     class Meta:
         model = User
@@ -29,3 +32,29 @@ class UserFilter(django_filters.FilterSet):
                 Q(last_name__icontains=value)
             )
         return queryset
+    
+
+class RoleFilter(django_filters.FilterSet):
+    search = django_filters.CharFilter(
+        method='filter_search',
+        label='Search',
+        widget=forms.TextInput(attrs={'placeholder': 'Search roles...'})
+    )
+
+    report_to = django_filters.ModelChoiceFilter(
+        queryset=Role.objects.all(),
+        label='Reports To',
+        empty_label='All',
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    class Meta:
+        model = Role
+        fields = ['report_to']
+
+    def filter_search(self, queryset, name, value):
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value) |
+            Q(authorities__icontains=value)
+        ) if value else queryset

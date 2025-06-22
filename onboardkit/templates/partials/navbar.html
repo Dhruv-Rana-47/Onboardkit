@@ -12,7 +12,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
                     </li>
-                    {% if user.role == 'ADMIN' %}
+                    {% if user.role and user.role.name == 'ADMIN' %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'accounts:user_list' %}">User Management</a>
                         </li>

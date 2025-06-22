@@ -2,13 +2,13 @@
 
 from django.utils import timezone  # Add this import
 from django.db import models
-from accounts.models import User
+from accounts.models import User, Role
 
 class OnboardingTemplate(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_templates')
-    role = models.CharField(max_length=10, choices=User.ROLES)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
