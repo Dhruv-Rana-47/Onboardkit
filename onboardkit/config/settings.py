@@ -95,11 +95,21 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 
 
-
+# Dynamically choose DB engine based on DEBUG
+db_engine = 'django.db.backends.postgresql_psycopg' if not DEBUG else 'django.db.backends.postgresql'
 
 DATABASES = {
-    'default': dj_database_url.config(default=config('DATABASE_URL'))
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL'),
+        conn_max_age=600,
+        engine=db_engine
+    )
 }
+
+
+# DATABASES = {
+#     'default': dj_database_url.config(default=config('DATABASE_URL'))
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
