@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+<!-- TEMPORARY DEBUG -->
+<div style="display: none;">
+    Current URL: {{ request.resolver_match.url_name }}<br>
+    Authorities: {{ authorities|join:", " }}<br>
+    User: {{ user.username }}<br>
+    View Hierarchy Permission: {% if 'view_hierarchy' in authorities %}YES{% else %}NO{% endif %}
+</div>
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2">Company Hierarchy</h1>
+  <div class="btn-toolbar mb-2 mb-md-0">
+    {% if 'manage_roles' in authorities %}
+    <a href="{% url 'accounts:role_management' %}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-gear"></i> Manage Roles
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="hierarchy-container">
+      {% for root in hierarchy_tree %}
+        {% include 'accounts/hierarchy_node.html' with node=root %}
+      {% empty %}
+        <div class="alert alert-info">No hierarchy defined yet. Please create roles and reporting structure.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<style>
+  .hierarchy-container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .tree-node {
+    position: relative;
+    margin-left: 30px;
+    padding-left: 20px;
+    border-left: 2px dashed #cbd5e1;
+  }
+
+  .tree-node::before {
+    content: '';
+    position: absolute;
+    top: 24px;
+    left: 0;
+    width: 20px;
+    border-top: 2px dashed #cbd5e1;
+  }
+
+  .role-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    transition: all 0.2s;
+  }
+
+  .role-card:hover {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+  }
+
+  .role-header {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .role-icon {
+    font-size: 1.2rem;
+    margin-right: 10px;
+    color: #3b82f6;
+  }
+
+  .role-title {
+    font-weight: 500;
+    flex-grow: 1;
+  }
+
+  .user-count {
+    background: #e2e8f0;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+  }
+
+  .user-list {
+    margin-top: 10px;
+    padding-left: 15px;
+    display: none;
+  }
+
+  .user-item {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    margin-bottom: 5px;
+    background: #f9fafb;
+    border-radius: 4px;
+  }
+
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #3b82f6;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    font-weight: bold;
+  }
+
+  .user-details {
+    flex-grow: 1;
+  }
+
+  .user-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+
+  .user-email {
+    font-size: 0.8rem;
+    color: #6b7280;
+  }
+
+  .children {
+    margin-top: 15px;
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.role-header').forEach(header => {
+    header.addEventListener('click', function() {
+      const userList = this.parentElement.querySelector('.user-list');
+      userList.style.display = userList.style.display === 'block' ? 'none' : 'block';
+    });
+  });
+});
+</script>
+{% endblock %}

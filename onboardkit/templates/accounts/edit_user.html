@@ -11,4 +11,45 @@
         <a href="{% url 'accounts:user_detail' user.pk %}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const roleSelect = document.getElementById('id_role');
+    const mentorField = document.getElementById('id_mentor');
+    const initialRoleId = roleSelect.value;
+
+    function updateMentors(roleId, selectedMentorId = null) {
+        mentorField.innerHTML = '<option value="">---------</option>';
+
+        if (!roleId) return;
+
+        fetch(`/users/ajax/get-mentors/?role_id=${roleId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.mentors && data.mentors.length > 0) {
+                    data.mentors.forEach(mentor => {
+                        const option = document.createElement('option');
+                        option.value = mentor.id;
+                        option.text = mentor.name;
+                        if (selectedMentorId && mentor.id == selectedMentorId) {
+                            option.selected = true;
+                        }
+                        mentorField.appendChild(option);
+                    });
+                }
+            })
+            .catch(error => console.error('Error fetching mentors:', error));
+    }
+
+    // Call on load if initial role exists
+    if (initialRoleId) {
+        const selectedMentorId = '{{ form.initial.mentor.id|default:"" }}';
+        updateMentors(initialRoleId, selectedMentorId);
+    }
+
+    roleSelect.addEventListener('change', function () {
+        updateMentors(this.value);
+    });
+});
+</script>
 {% endblock %}

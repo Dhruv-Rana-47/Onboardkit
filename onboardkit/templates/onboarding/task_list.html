@@ -1,3 +1,4 @@
+
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
@@ -45,6 +46,7 @@
                         <th>Assigned To</th>
                         <th>Status</th>
                         <th>Due Date</th>
+                        <th>Rating</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -69,6 +71,14 @@
                                 -
                             {% endif %}
                         </td>
+                        <td>
+                            {% if task.rating %}
+                            {{ task.rating.rating }}/5
+                            {% else %}
+                            <span class="text-muted">Not Rated</span>
+                            {% endif %}
+                            </td>
+
                         <td>
                             <a href="{% url 'onboarding:task_detail' task.pk %}" class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-eye"></i> View

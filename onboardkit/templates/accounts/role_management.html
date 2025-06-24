@@ -1,13 +1,21 @@
 {% extends 'base.html' %}
 {% load django_tables2 crispy_forms_tags %}
 
+{% block title %}Role Management{% endblock %}
 {% block content %}
+<div class="role-management-container">
+
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">Role Management</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
-        <a href="{% url 'accounts:add_role' %}" class="btn btn-primary">
+        {% if 'manage_roles' in authorities %}
+        <a href="{% url 'accounts:add_role' %}" class="btn btn-sm btn-outline-primary">
             <i class="bi bi-plus-circle"></i> Add Role
         </a>
+        
+
+        {% endif %}
+
     </div>
 </div>
 
@@ -15,12 +23,17 @@
     <div class="card-body">
         <form method="get">
             {% crispy filter.form %}
-            <button type="submit" class="btn btn-primary mt-2">Filter</button>
-            <a href="?" class="btn btn-secondary mt-2">Reset</a>
+            <div class="mt-2">
+                <button type="submit" class="btn btn-primary">Apply Filter</button>
+                <a href="?" class="btn btn-outline-secondary">Reset</a>
+            </div>
         </form>
     </div>
 </div>
+<div class="table-responsive">
+    {% render_table table %}
+</div>
 
+</div>
 
-{% render_table table %}
 {% endblock %}

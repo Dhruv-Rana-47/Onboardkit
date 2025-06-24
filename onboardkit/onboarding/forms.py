@@ -121,31 +121,30 @@ class TaskForm(forms.ModelForm):
         user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
 
-        # ✅ 1. Pre-evaluate MENTOR's mentees as choices
-        if user and user.role == "SENIOR":
-            mentees = list(User.objects.filter(mentor=user))
-            self.fields["user"].choices = [(u.pk, str(u)) for u in mentees]
+        if user:
+            # Restrict task assignment to users who are below in the hierarchy
+            if user.role and user.role.sub_roles.exists():
+                allowed_roles = user.role.sub_roles.all()
+                self.fields["user"].queryset = User.objects.filter(
+                    role__in=allowed_roles,
+                    company=user.company,
+                    is_active=True
+                )
+            else:
+                # Fallback if no sub roles
+                self.fields["user"].queryset = User.objects.none()
 
-        # ✅ 2. Pre-evaluate template_items to avoid lazy query
-        items = list(TemplateItem.objects.all())
-        self.fields["template_item"].choices = [("", "---------")] + [
-            (i.pk, str(i.title)) for i in items
-        ]
+        else:
+            self.fields["user"].queryset = User.objects.none()
 
-        # ✅ 3. Set priority choices directly (already a constant list)
-        self.fields["priority"].choices = [("", "Select Priority")] + list(
-            UserTask.PRIORITY_CHOICES
-        )
+        # Template items
+        self.fields["template_item"].queryset = TemplateItem.objects.all()
 
-        # ✅ 4. Only show 'status' if allowed
-        if not (
-            user.is_admin
-            or (
-                hasattr(self.instance, "assigned_by")
-                and user == self.instance.assigned_by
-            )
-        ):
+        self.fields["priority"].choices = [("", "Select Priority")] + list(UserTask.PRIORITY_CHOICES)
+
+        if not (user and (user.is_admin() or (hasattr(self.instance, "assigned_by") and user == self.instance.assigned_by))):
             self.fields.pop("status", None)
+
 
     class Meta:
         model = UserTask
@@ -179,3 +178,30 @@ class AssignTemplateForm(forms.ModelForm):
         widgets = {
             "due_date": forms.DateInput(attrs={"type": "date"}),
         }
+
+
+
+from .models import TaskRating
+
+class TaskRatingForm(forms.ModelForm):
+    class Meta:
+        model = TaskRating
+        fields = ['rating', 'comment']
+        widgets = {
+            'rating': forms.NumberInput(attrs={'min': 1, 'max': 5}),
+            'comment': forms.Textarea(attrs={'rows': 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.task = kwargs.pop('task', None)  # Pull task manually
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        task = self.task or (self.instance.task if self.instance and hasattr(self.instance, 'task') else None)
+
+        if task and task.status != 'COMPLETED':
+            raise forms.ValidationError("You can only rate a task that has been completed.")
+
+        return cleaned_data
+

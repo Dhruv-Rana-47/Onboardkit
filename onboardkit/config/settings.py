@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     "django_filters",
     "corsheaders",
     "accounts",
-    "dashboard",
     "onboarding",
     "messaging",
     "analytics",
@@ -67,6 +66,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "accounts.middleware.CheckCompanyActiveMiddleware",
+
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -82,6 +83,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "accounts.context_processors.user_authorities",
             ],
         },
     },
@@ -169,3 +171,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # Only for production
 if not DEBUG:
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+
+# Media files (uploads like feedback attachments)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

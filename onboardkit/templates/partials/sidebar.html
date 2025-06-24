@@ -1,33 +1,62 @@
-<div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-    <div class="position-sticky pt-3">
+<div class="sidebar">
+    <div class="sidebar-inner">
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link active" href="{% url 'dashboard' %}">
+                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
                     <i class="bi bi-speedometer2"></i> Dashboard
                 </a>
             </li>
-            {% if user.role and user.role.name == 'ADMIN' %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'accounts:user_list' %}">
-                        <i class="bi bi-people"></i> User Management
-                    </a>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'accounts:role_management' %}">
-                        <i class="bi bi-person"></i> Role Management
-                    </a>
-                </li>
-            {% endif %}
-            {% if user.role == 'SENIOR' %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'onboarding:template_list' %}">
-                        <i class="bi bi-file-earmark-text"></i> Templates
-                    </a>
-                </li>
-            {% endif %}
+
+            {% if 'view_users' in authorities %}
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'messaging:inbox' %}">
+                <a class="nav-link {% if 'user_list' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'accounts:user_list' %}">
+                    <i class="bi bi-people"></i> User Management
+                </a>
+            </li>
+            {% endif %}
+             
+            {% if 'manage_departments' in authorities %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'department' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'accounts:department_list' %}">
+                    <i class="bi bi-building"></i> Department Management
+                </a>
+            </li>
+            {% endif %}
+
+            {% if 'manage_roles' in authorities %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'role_management' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'accounts:role_management' %}">
+                    <i class="bi bi-shield-lock"></i> Role Management
+                </a>
+            </li>
+            {% endif %}
+
+            {% if 'view_hierarchy' in authorities %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'company_hierarchy' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'accounts:company_hierarchy' %}">
+                    <i class="bi bi-diagram-3"></i> Company Hierarchy
+                </a>
+            </li>
+            {% endif %}
+
+            {% if 'view_templates' in authorities %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'template' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'onboarding:template_list' %}">
+                    <i class="bi bi-file-earmark-text"></i> Templates
+                </a>
+            </li>
+            {% endif %}
+
+            {% if 'view_tasks' in authorities %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'task' in request.resolver_match.url_name and not 'template' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'onboarding:task_list' %}">
+                    <i class="bi bi-list-check"></i> My Tasks
+                </a>
+            </li>
+            {% endif %}
+
+            <li class="nav-item">
+                <a class="nav-link {% if 'messaging' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'messaging:inbox' %}">
                     <i class="bi bi-envelope"></i> Messages
                     {% if user.unread_messages_count > 0 %}
                         <span class="badge bg-danger rounded-pill">{{ user.unread_messages_count }}</span>

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Departments{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Departments</h2>
+    <a href="{% url 'accounts:add_department' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Add Department
+    </a>
+</div>
+
+{% if departments %}
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for dept in departments %}
+            <tr>
+                <td>{{ dept.name }}</td>
+                <td>{{ dept.description }}</td>
+                <td class="text-end">
+                    <a href="{% url 'accounts:edit_department' dept.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                    <a href="{% url 'accounts:delete_department' dept.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No departments found.</p>
+{% endif %}
+{% endblock %}

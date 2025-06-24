@@ -172,3 +172,21 @@ class TemplateAssignment(models.Model):
 
     def __str__(self):
         return f"{self.template.name} -> {self.assignee.get_full_name()}"
+    
+
+
+    
+from django.conf import settings
+
+class TaskRating(models.Model):
+    task = models.OneToOneField('UserTask', on_delete=models.CASCADE, related_name='rating')
+    rated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField()  # e.g., 1 to 5
+    comment = models.TextField(blank=True)
+    rated_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('task', 'rated_by')
+
+    def __str__(self):
+        return f"{self.rated_by} rated {self.task} - {self.rating} stars"
