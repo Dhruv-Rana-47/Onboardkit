@@ -1,0 +1,37 @@
+<div class="tree-node">
+  <div class="role-card">
+    <div class="role-header">
+      <span class="role-icon">
+        {% if node.role.name|lower == 'admin' %}👑
+        {% elif node.role.name|lower == 'manager' %}💼
+        {% else %}👨‍💼{% endif %}
+      </span>
+      <span class="role-title">{{ node.role.name }}</span>
+      <span class="user-count">{{ node.users.count }} user{{ node.users.count|pluralize }}</span>
+    </div>
+    
+    <div class="user-list">
+      {% for user in node.users %}
+      <div class="user-item">
+        <div class="user-avatar">
+          {{ user.first_name|first }}{{ user.last_name|first }}
+        </div>
+        <div class="user-details">
+          <div class="user-name">{{ user.get_full_name }}</div>
+          <div class="user-email">{{ user.email }}</div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="user-item">No users in this role</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if node.children %}
+  <div class="children">
+    {% for child in node.children %}
+      {% include 'accounts/hierarchy_node.html' with node=child %}
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
