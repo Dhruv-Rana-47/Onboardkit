@@ -7,7 +7,7 @@ class AuthenticationTests(TestCase):
     def setUp(self):
         self.admin = User.objects.create_user(
             username='admin',
-            password='testpass123',
+            password='Rana47amongus',
             role='ADMIN'
         )
         
