@@ -6,9 +6,11 @@ from django.http import JsonResponse
 from django.db import connection
 from PyPDF2 import PdfReader
 import re
+from decouple import config
+FLASK_API_BASE = config("FLASK_API_BASE")
 
 # --- Config ---
-FLASK_API_BASE = "http://127.0.0.1:5000"
+
 PDF_PATH = os.path.join(os.path.dirname(__file__), "docs", "intent.pdf")
 
 # --- Load and parse PDF chunks ---
