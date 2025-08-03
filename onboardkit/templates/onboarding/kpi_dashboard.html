@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}KPI Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Your KPI Dashboard</h2>
+    
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Total KPI Points</h5>
+                    <h2>{{ total_kpi }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Avg Points/Task</h5>
+                    <h2>{{ avg_points_per_task }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">Completion Rate</h5>
+                    <h2>{{ completion_rate }}%</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Metrics -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Performance Metrics</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <h5>On-Time Completion</h5>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: {{ on_time_rate }}%">
+                                {{ on_time_rate }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <h5>Early Completion</h5>
+                        <div class="progress">
+                            <div class="progress-bar bg-primary" style="width: {{ early_completion_rate }}%">
+                                {{ early_completion_rate }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="alert alert-secondary">
+                <strong>Recent Performance (30 days):</strong> Avg {{ recent_avg }} points per task
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent KPI History -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Recent KPI Awards</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Points</th>
+                            <th>Completed On</th>
+                            <th>Timeliness</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for kpi in kpi_history %}
+                        <tr>
+                            <td>{{ kpi.task.get_task_title }}</td>
+                            <td>{{ kpi.points }}</td>
+                            <td>{{ kpi.awarded_at|date:"M d, Y" }}</td>
+                            <td>
+                                {% if kpi.was_early %}
+                                    <span class="badge bg-success">Early</span>
+                                {% elif kpi.was_late %}
+                                    <span class="badge bg-danger">Late</span>
+                                {% else %}
+                                    <span class="badge bg-primary">On Time</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mentor View -->
+    {% if mentee_kpis %}
+    <div class="card">
+        <div class="card-header">
+            <h4>Mentee Performance</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Mentee</th>
+                            <th>Total KPI</th>
+                            <th>Tasks Completed</th>
+                            <th>Avg Rating</th>
+                            <th>On-Time Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mentee in mentee_kpis %}
+                        <tr>
+                            <td>{{ mentee.user.get_full_name }}</td>
+                            <td>{{ mentee.total_kpi }}</td>
+                            <td>{{ mentee.completed_count }}/{{ mentee.task_count }}</td>
+                            <td>
+                                {% if mentee.avg_rating %}
+                                    {{ mentee.avg_rating|floatformat:1 }}/5
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            <td>{{ mentee.on_time_rate|floatformat:1 }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

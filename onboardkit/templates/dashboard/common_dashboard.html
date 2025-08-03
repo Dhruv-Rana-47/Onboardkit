@@ -12,7 +12,7 @@
             <i class="bi bi-file-earmark-plus"></i> New Template
         </a>
         {% endif %}
-        {% if 'create_task' in authorities %}
+        {% if 'manage_tasks' in authorities %}
         <a href="{% url 'onboarding:task_create' %}" class="btn btn-sm btn-outline-info">
             <i class="bi bi-plus-circle"></i> New Task
         </a>
@@ -27,9 +27,6 @@
         </a>
     </div>
 </div>
-
-
-
 
 <!-- Dashboard Cards -->
 <div class="row g-3 mb-4">
@@ -89,27 +86,6 @@
     </div>
 </div>
 
-<!-- Templates -->
-{% if 'view_templates' in authorities and templates %}
-<h3>Templates</h3>
-<div class="table-responsive mb-4">
-    <table class="table table-hover">
-        <thead><tr><th>Title</th><th>Created</th><th>Actions</th></tr></thead>
-        <tbody>
-            {% for t in templates %}
-            <tr>
-                <td><a href="{% url 'onboarding:template_detail' t.pk %}">{{ t.title }}</a></td>
-                <td>{{ t.created_at|naturaltime }}</td>
-                <td>
-                    <a href="{% url 'onboarding:template_edit' t.pk %}" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% endif %}
-
 <!-- My Tasks -->
 {% if 'view_tasks' in authorities and tasks %}
 <h3>My Tasks</h3>
@@ -118,9 +94,9 @@
         <thead><tr><th>Title</th><th>Status</th><th>Due</th><th>Actions</th></tr></thead>
         <tbody>
             {% for task in tasks %}
-            <tr class="{% if task.is_overdue %}table-danger{% endif %}">
-                <td>{{ task.title }}</td>
-                <td><span class="badge bg-{{ task.status|lower }}">{{ task.get_status_display }}</span></td>
+            <tr class="{% if task.is_overdue %}table-danger{% endif %}" style="color: black;">
+                <td>{{ task.get_task_title }}</td>
+                <td><span class="badge bg-{{ task.status|lower }}  text-dark">{{ task.get_status_display }}</span></td>
                 <td>{{ task.due_date|date:"M d, Y" }}</td>
                 <td>
                     <a href="{% url 'onboarding:task_detail' task.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
@@ -141,7 +117,7 @@
 <div class="list-group mb-4">
     {% for mentee in mentees %}
     <div class="list-group-item d-flex align-items-center">
-        <img src="{{ mentee.profile.avatar.url|default:'/static/default-avatar.png' }}" class="rounded-circle me-3" width="60" height="60" alt="Avatar">
+        <!-- <img src="{{ mentee.profile.avatar.url|default:'/static/default-avatar.png' }}" class="rounded-circle me-3" width="60" height="60" alt="Avatar"> -->
         <div class="flex-grow-1">
             <h5 class="mb-1">{{ mentee.get_full_name }}</h5>
             <p class="mb-0 text-muted">{{ mentee.profile.department }}</p>
@@ -170,8 +146,8 @@
         <tbody>
             {% for task in mentee_tasks %}
             <tr class="{% if task.is_overdue %}table-danger{% endif %}">
-                <td>{{ task.title }}</td>
-                <td>{{ task.assignee.get_full_name }}</td>
+                <td>{{ task.get_task_title }}</td>
+                <td>{{ task.user.get_full_name }}</td>
                 <td>{{ task.due_date|date:"M d, Y" }}</td>
                 <td>
                     <span class="badge bg-{% if task.priority == 'HIGH' %}danger{% else %}warning{% endif %}">{{ task.get_priority_display }}</span>

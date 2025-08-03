@@ -24,16 +24,15 @@ class Command(BaseCommand):
             ("create_template", "Create onboarding templates"),
             ("edit_template", "Edit templates"),
             ("assign_template", "Assign templates to users or roles"),
-            ("create_task", "Create individual task"),
-            ("assign_task", "Assign task to user"),
-            ("edit_task", "Edit assigned task"),
-            ("delete_task", "Delete or revoke a task"),
+            ("manage_tasks", "Create, assign, edit, or delete tasks"),
             ("view_tasks", "View assigned tasks"),
             ("complete_task", "Mark task as complete"),
             ("give_feedback", "Give feedback on task"),
             ("view_feedback", "View feedback"),
 
             # Progress, Reports, and Logs
+            ("view_kpi", "View KPI dashboard and scores"),
+
             ("view_progress", "View progress reports"),
             ("export_reports", "Download/Export user performance reports"),
             ("rate_user", "Rate a user’s task performance"),

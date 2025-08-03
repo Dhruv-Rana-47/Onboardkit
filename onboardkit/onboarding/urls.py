@@ -4,7 +4,7 @@ from .views import (template_list, template_create, template_detail,
                    section_create, item_create, task_detail,task_list,
                    assign_task,task_create,task_edit,task_delete,template_delete,
                    template_edit,section_delete,section_edit,item_delete,item_edit,
-                reorder_items,reorder_sections,assign_template)
+                reorder_items,reorder_sections,assign_template,kpi_dashboard)
 app_name='onboarding'
 urlpatterns = [
     # Templates
@@ -34,4 +34,6 @@ path('items/<int:pk>/delete/', item_delete, name='item_delete'),
     path('tasks/create/', task_create, name='task_create'),
     path('tasks/<int:pk>/edit/', task_edit, name='task_edit'),
     path('tasks/<int:pk>/delete/', task_delete, name='task_delete'),
+    path('kpi/', kpi_dashboard, name='kpi_dashboard'),
+
 ]

@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     "accounts",
     "onboarding",
     "messaging",
-    "analytics",
+    "chatbot",
+
 ]
 MESSAGES_PER_PAGE = 10
 

@@ -6,7 +6,6 @@ from .models import (
     UserTask,
     User,
     TemplateAssignment,
-    TaskRating
 )
 
 
@@ -19,6 +18,7 @@ class OnboardingTemplateForm(forms.ModelForm):
         }
 
 
+# Enhance your existing forms with better field configuration
 class TemplateSectionForm(forms.ModelForm):
     class Meta:
         model = TemplateSection
@@ -43,6 +43,7 @@ class TemplateItemForm(forms.ModelForm):
             "expected_duration_new",
             "order",
         ]
+
         widgets = {
             "item_type": forms.Select(attrs={"class": "form-select"}),
             "title": forms.TextInput(attrs={"class": "form-control"}),
@@ -62,15 +63,12 @@ class TemplateItemForm(forms.ModelForm):
 class AssignTaskForm(forms.ModelForm):
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        # For users with assign_task authority: only show their mentees
-        if user.has_authority('assign_task'):
+        # For mentors: only show their mentees
+        if user.role == "SENIOR":
             self.fields["user"].queryset = User.objects.filter(mentor=user)
-        # For users with manage_tasks authority: can assign to anyone except admins
-        elif user.has_authority('manage_tasks'):
-            self.fields["user"].queryset = User.objects.filter(is_active=True).exclude(
-                authorities__code='manage_tasks'  # Exclude other admins
-            )
+        # Admins can assign to anyone
+        elif user.role == "ADMIN":
+            self.fields["user"].queryset = User.objects.exclude(role="ADMIN")
 
     class Meta:
         model = UserTask
@@ -82,7 +80,9 @@ class AssignTaskForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if not cleaned_data.get("template_item") and not cleaned_data.get("custom_task"):
+        if not cleaned_data.get("template_item") and not cleaned_data.get(
+            "custom_task"
+        ):
             raise forms.ValidationError(
                 "You must select a template item or enter a custom task"
             )
@@ -91,7 +91,8 @@ class AssignTaskForm(forms.ModelForm):
 
 class TaskFilterForm(forms.Form):
     status = forms.ChoiceField(
-        choices=[("", "All Statuses")] + list(UserTask.STATUS_CHOICES),
+        choices=[("", "All Statuses")]
+        + list(UserTask.STATUS_CHOICES),  # Convert tuple to list
         required=False,
         label="Status",
     )
@@ -104,6 +105,7 @@ class TaskFilterForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # You can add dynamic queryset filtering here if needed
         self.fields["assigned_to"].queryset = User.objects.filter(is_active=True)
 
     def filter_queryset(self, queryset):
@@ -112,6 +114,7 @@ class TaskFilterForm(forms.Form):
         if self.cleaned_data["assigned_to"]:
             queryset = queryset.filter(user=self.cleaned_data["assigned_to"])
         return queryset
+
 
 class TaskForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -130,23 +133,18 @@ class TaskForm(forms.ModelForm):
             else:
                 # Fallback if no sub roles
                 self.fields["user"].queryset = User.objects.none()
+
         else:
             self.fields["user"].queryset = User.objects.none()
 
-        # Template items - show all if user has manage_tasks authority, otherwise only their own
-        if user and user.has_authority('manage_tasks'):
-            self.fields["template_item"].queryset = TemplateItem.objects.all()
-        else:
-            self.fields["template_item"].queryset = TemplateItem.objects.filter(
-                section__template__created_by=user
-            )
+        # Template items
+        self.fields["template_item"].queryset = TemplateItem.objects.all()
 
         self.fields["priority"].choices = [("", "Select Priority")] + list(UserTask.PRIORITY_CHOICES)
 
-        # Only show status field if user has manage_tasks authority or is task creator
-        if not (user and (user.has_authority('manage_tasks') or 
-                (hasattr(self.instance, "assigned_by") and user == self.instance.assigned_by))):
+        if not (user and (user.is_admin() or (hasattr(self.instance, "assigned_by") and user == self.instance.assigned_by))):
             self.fields.pop("status", None)
+
 
     class Meta:
         model = UserTask
@@ -162,17 +160,16 @@ class TaskForm(forms.ModelForm):
             "due_date": forms.DateInput(attrs={"type": "date"}),
             "status": forms.Select(attrs={"class": "form-select"}),
         }
-        
+
+
 class AssignTemplateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
         if user:
-            # Only allow assigning to users who don't have manage_tasks authority
             self.fields["assignee"].queryset = User.objects.filter(
-                is_active=True
-            ).exclude(
-                authorities__code='manage_tasks'
+                is_active=True,
+                role__in=["JUNIOR", "INTERN"],  # Only assign to juniors/interns
             ).exclude(pk=user.pk)
 
     class Meta:
@@ -182,6 +179,9 @@ class AssignTemplateForm(forms.ModelForm):
             "due_date": forms.DateInput(attrs={"type": "date"}),
         }
 
+
+
+from .models import TaskRating
 
 class TaskRatingForm(forms.ModelForm):
     class Meta:
@@ -193,7 +193,7 @@ class TaskRatingForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        self.task = kwargs.pop('task', None)
+        self.task = kwargs.pop('task', None)  # Pull task manually
         super().__init__(*args, **kwargs)
 
     def clean(self):
@@ -204,3 +204,4 @@ class TaskRatingForm(forms.ModelForm):
             raise forms.ValidationError("You can only rate a task that has been completed.")
 
         return cleaned_data
+
