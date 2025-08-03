@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Department{% endblock %}
+
+{% block content %}
+<div class="alert alert-warning mt-3">
+    <h4>Confirm Delete</h4>
+    <p>Are you sure you want to delete department <strong>{{ department.name }}</strong>?</p>
+</div>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    <a href="{% url 'accounts:department_list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

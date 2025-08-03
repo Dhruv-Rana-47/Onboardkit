@@ -1,5 +1,4 @@
-
- {% extends 'base.html' %}
+{% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
 {% block title %}Add New User{% endblock %}
@@ -33,14 +32,19 @@
                 <div class="col-md-6">
                     {{ form.role|as_crispy_field }}
                 </div>
-                <div class="col-md-6" id="mentor-field">
-                    {{ form.mentor|as_crispy_field }}
+                <div class="col-md-6">
+                    {{ form.department|as_crispy_field }}
                 </div>
             </div>
             <div class="row">
+                <div class="col-md-6" id="mentor-field">
+                    {{ form.mentor|as_crispy_field }}
+                </div>
                 <div class="col-md-6">
                     {{ form.password1|as_crispy_field }}
                 </div>
+            </div>
+            <div class="row">
                 <div class="col-md-6">
                     {{ form.password2|as_crispy_field }}
                 </div>
@@ -52,22 +56,41 @@
 </div>
 
 <script>
-document.getElementById('id_role').addEventListener('change', function() {
-    const mentorField = document.getElementById('mentor-field');
-    if (this.value === 'JUNIOR') {
-        mentorField.style.display = 'block';
-    } else {
-        mentorField.style.display = 'none';
-    }
-});
-
-// Initialize visibility on page load
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const roleSelect = document.getElementById('id_role');
     const mentorField = document.getElementById('mentor-field');
-    if (roleSelect.value !== 'JUNIOR') {
+    const mentorSelect = document.getElementById('id_mentor');
+    const initialRoleId = roleSelect.value;
+
+    function updateMentors(roleId) {
+        mentorSelect.innerHTML = '<option value="">---------</option>';
         mentorField.style.display = 'none';
+
+        if (!roleId) return;
+
+        fetch(`/users/ajax/get-mentors/?role_id=${roleId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.mentors && data.mentors.length > 0) {
+                    data.mentors.forEach(mentor => {
+                        const option = document.createElement('option');
+                        option.value = mentor.id;
+                        option.text = mentor.name;
+                        mentorSelect.appendChild(option);
+                    });
+                    mentorField.style.display = 'block';
+                }
+            })
+            .catch(error => console.error('Error fetching mentors:', error));
     }
+
+    if (initialRoleId) {
+        updateMentors(initialRoleId);
+    }
+
+    roleSelect.addEventListener('change', function () {
+        updateMentors(this.value);
+    });
 });
 </script>
-{% endblock %} 
+{% endblock %}

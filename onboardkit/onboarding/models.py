@@ -2,13 +2,13 @@
 
 from django.utils import timezone  # Add this import
 from django.db import models
-from accounts.models import User
+from accounts.models import User, Role
 
 class OnboardingTemplate(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_templates')
-    role = models.CharField(max_length=10, choices=User.ROLES)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -172,3 +172,21 @@ class TemplateAssignment(models.Model):
 
     def __str__(self):
         return f"{self.template.name} -> {self.assignee.get_full_name()}"
+    
+
+
+    
+from django.conf import settings
+
+class TaskRating(models.Model):
+    task = models.OneToOneField('UserTask', on_delete=models.CASCADE, related_name='rating')
+    rated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField()  # e.g., 1 to 5
+    comment = models.TextField(blank=True)
+    rated_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('task', 'rated_by')
+
+    def __str__(self):
+        return f"{self.rated_by} rated {self.task} - {self.rating} stars"

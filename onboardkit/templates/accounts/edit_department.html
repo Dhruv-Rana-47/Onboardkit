@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Edit Department{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Edit Department</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a href="{% url 'accounts:department_list' %}" class="btn btn-outline-secondary">Cancel</a>
+</form>
+{% endblock %}

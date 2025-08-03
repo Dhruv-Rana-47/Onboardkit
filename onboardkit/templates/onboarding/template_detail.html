@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
+
 {% block title %}{{ template.name }}{% endblock %}
 
 {% block content %}
@@ -46,10 +47,8 @@
                         <i class="bi bi-pencil-square"></i>
                     </a>
                     <button type="button" 
-                            class="btn btn-sm btn-outline-danger ms-1" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#deleteModal"
-                            data-form="form-section-{{ section.pk }}">
+                            class="btn btn-sm btn-outline-danger ms-1"
+                            onclick="document.getElementById('form-section-{{ section.pk }}').submit();">
                         <i class="bi bi-trash"></i>
                     </button>
                     <form method="post" action="{% url 'onboarding:section_delete' section.pk %}" 
@@ -85,50 +84,13 @@
                                 </h5>
                                 <small class="text-muted">{{ item.get_item_type_display }}</small>
                             </div>
-                            {% if template.templateassignment_set.all %}
-<div class="card mb-3">
-    <div class="card-header">
-        <h5>Current Assignments</h5>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-sm">
-                <thead>
-                    <tr>
-                        <th>Assignee</th>
-                        <th>Assigned By</th>
-                        <th>Due Date</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for assignment in template.templateassignment_set.all %}
-                    <tr>
-                        <td>{{ assignment.assignee.get_full_name }}</td>
-                        <td>{{ assignment.assigned_by.get_full_name }}</td>
-                        <td>{{ assignment.due_date|date:"M d, Y" }}</td>
-                        <td>
-                            <span class="badge bg-{% if assignment.is_completed %}success{% else %}warning{% endif %}">
-                                {% if assignment.is_completed %}Completed{% else %}Pending{% endif %}
-                            </span>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-{% endif %}
                             <div>
                                 <a href="{% url 'onboarding:item_edit' item.pk %}" class="btn btn-sm btn-outline-secondary me-1">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
                                 <button type="button" 
-                                        class="btn btn-sm btn-outline-danger" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#deleteModal"
-                                        data-form="form-item-{{ item.pk }}">
+                                        class="btn btn-sm btn-outline-danger"
+                                        onclick="document.getElementById('form-item-{{ item.pk }}').submit();">
                                     <i class="bi bi-trash"></i>
                                 </button>
                                 <form method="post" action="{% url 'onboarding:item_delete' item.pk %}" 
@@ -177,5 +139,6 @@
     </a>
 </div>
 
+<!-- Optional: drag-and-drop script still works -->
 <script src="{% static 'js/dragdrop.js' %}"></script>
 {% endblock %}

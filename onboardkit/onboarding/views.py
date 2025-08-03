@@ -3,11 +3,12 @@ from django.utils import timezone  # Add this import
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import OnboardingTemplate, TemplateSection, UserTask,TemplateItem,TaskFeedback
+from .models import OnboardingTemplate, TemplateSection, UserTask,TemplateItem,TaskFeedback,TaskRating
 from .forms import (OnboardingTemplateForm, TemplateSectionForm, 
-                   TemplateItemForm, AssignTaskForm, TaskFilterForm,TaskForm,AssignTemplateForm )
+                   TemplateItemForm, AssignTaskForm, TaskFilterForm,TaskForm,AssignTemplateForm,TaskRatingForm )
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError,connection
+ 
 
 
 
@@ -96,14 +97,16 @@ def assign_task(request):
 @login_required
 def task_detail(request, pk):
     task = get_object_or_404(UserTask, pk=pk)
-    
-    # Permission check
+
     if request.user not in [task.user, task.assigned_by] and not request.user.is_admin:
         messages.error(request, "You don't have permission to view this task")
         return redirect('dashboard')
 
-    # Get related tasks (3 most recent excluding current)
     related_tasks = task.user.tasks.exclude(pk=task.pk).order_by('-assigned_date')[:3]
+    rating = getattr(task, 'rating', None)
+
+    # Only mentors can submit ratings
+    show_rating_form = request.user == task.assigned_by and request.user != task.user
 
     if request.method == 'POST':
         if 'complete_task' in request.POST and request.user == task.user:
@@ -112,7 +115,7 @@ def task_detail(request, pk):
             task.save()
             messages.success(request, 'Task marked as completed!')
             return redirect('onboarding:task_detail', pk=task.pk)
-            
+
         elif 'add_feedback' in request.POST and request.user != task.user:
             feedback = TaskFeedback(
                 task=task,
@@ -124,11 +127,35 @@ def task_detail(request, pk):
             feedback.save()
             messages.success(request, 'Feedback submitted!')
             return redirect('onboarding:task_detail', pk=task.pk)
-    
+
+        elif 'submit_rating' in request.POST and show_rating_form:
+            if task.status != 'COMPLETED':
+                messages.error(request, "You can only rate a completed task.")
+                return redirect('onboarding:task_detail', pk=task.pk)
+
+            form = TaskRatingForm(request.POST, task=task)
+            if form.is_valid():
+                TaskRating.objects.update_or_create(
+                    task=task,
+                    rated_by=request.user,
+                    defaults=form.cleaned_data
+                )
+                messages.success(request, 'Rating submitted!')
+                return redirect('onboarding:task_detail', pk=task.pk)
+        else:
+            form = TaskRatingForm(instance=rating, task=task) if show_rating_form else None
+    else:
+        form = TaskRatingForm(instance=rating, task=task) if show_rating_form else None
+
     return render(request, 'onboarding/task_detail.html', {
         'task': task,
-        'related_tasks': related_tasks
+        'related_tasks': related_tasks,
+        'rating': rating,
+        'show_rating_form': show_rating_form,
+        'rating_form': form,
     })
+
+
 from django.core.paginator import Paginator
 
 from django.core.paginator import Paginator
@@ -158,6 +185,7 @@ from django.db import reset_queries
 def task_create(request):
     if request.method == 'POST':
         form = TaskForm(request.POST, user=request.user)
+
         if form.is_valid():
             task = form.save(commit=False)
             task.assigned_by = request.user

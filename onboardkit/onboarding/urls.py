@@ -1,30 +1,3 @@
-# from django.urls import path
-# from . import views
-
-# urlpatterns = [
-#     # Templates
-#     path('templates/', views.template_list, name='template_list'),
-#     path('templates/add/', views.template_create, name='template_create'),
-#     path('templates/<int:pk>/', views.template_detail, name='template_detail'),
-#     path('templates/<int:pk>/edit/', views.template_edit, name='template_edit'),
-#     path('templates/<int:pk>/delete/', views.template_delete, name='template_delete'),
-    
-#     # Sections
-#     path('templates/<int:template_pk>/sections/add/', views.section_create, name='section_create'),
-#     path('sections/<int:pk>/edit/', views.section_edit, name='section_edit'),
-#     path('sections/<int:pk>/delete/', views.section_delete, name='section_delete'),
-    
-#     # Items
-#     path('sections/<int:section_pk>/items/add/', views.item_create, name='item_create'),
-#     path('items/<int:pk>/edit/', views.item_edit, name='item_edit'),
-#     path('items/<int:pk>/delete/', views.item_delete, name='item_delete'),
-    
-#     # Tasks
-#     path('tasks/', views.task_list, name='task_list'),
-#     path('tasks/<int:pk>/', views.task_detail, name='task_detail'),
-#     path('tasks/<int:pk>/assign/', views.assign_task, name='assign_task'),
-# ]
-
 
 from django.urls import path
 from .views import (template_list, template_create, template_detail,

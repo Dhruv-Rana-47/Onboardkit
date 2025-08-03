@@ -160,3 +160,4 @@ def forward_message(request, pk):
         'form': form,
         'original': original
     })
+
