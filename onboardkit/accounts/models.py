@@ -38,6 +38,7 @@ class Role(models.Model):
     def __str__(self):
         return f"{self.name} ({self.company.name})"
 
+
 class Department(models.Model):
     name = models.CharField(max_length=100)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
@@ -54,18 +55,14 @@ class User(AbstractUser):
     profile_picture = models.ImageField(upload_to='profiles/', null=True, blank=True)
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
 
-
     def __str__(self):
         return f"{self.get_full_name()} - {self.username} ({self.role.name if self.role else 'No Role'})"
 
-    def is_admin(self):
-        return self.role and self.role.name.upper() == 'ADMIN'
-
-    def is_senior(self):
-        return self.role and self.role.name.upper() == 'SENIOR'
-
     def has_authority(self, code):
         return self.role and self.role.has_authority(code)
+
+    def is_mentor(self):
+        return User.objects.filter(mentor=self).exists()
 
 
 class Profile(models.Model):
@@ -76,8 +73,3 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"Profile of {self.user.username}"
-
-
-
-
-    

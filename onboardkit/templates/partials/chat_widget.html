@@ -1,0 +1,205 @@
+
+<style>
+#chatbot-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background: #0d6efd;
+  color: #fff;
+  font-size: 24px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+#chat-box-container {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 320px;
+  height: 400px;
+  display: none;
+  flex-direction: column;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background: white;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  z-index: 1000;
+}
+
+#chat-header {
+  background: #0d6efd;
+  color: white;
+  padding: 10px;
+  text-align: center;
+}
+
+#chat-messages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  background: #f5f5f5;
+}
+
+#chat-input {
+  display: flex;
+  border-top: 1px solid #ccc;
+}
+
+#chat-input input {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  outline: none;
+}
+
+#chat-input button {
+  color: white;
+  border: none;
+  padding: 0 16px;
+  cursor: pointer;
+}
+
+#mic-button {
+  background: white;
+  border-right: 1px solid #ccc;
+  color: #0d6efd;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+#chat-send {
+  background: #0d6efd;
+}
+</style>
+
+<!-- Chatbot Floating Button -->
+<button id="chatbot-toggle">💬</button>
+
+<!-- Chatbox -->
+<div id="chat-box-container">
+  <div id="chat-header">Assistant</div>
+  <div id="chat-messages"></div>
+  <div id="chat-input">
+    <button id="mic-button" title="Speak">🎤</button>
+    <input type="text" id="chat-user-input" placeholder="Ask something..." />
+    <button id="chat-send">Send</button>
+  </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+document.getElementById("chatbot-toggle").onclick = () => {
+  const box = document.getElementById("chat-box-container");
+  box.style.display = box.style.display === "flex" ? "none" : "flex";
+};
+
+document.getElementById("chat-send").onclick = sendMessage;
+
+document.getElementById("chat-user-input").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") sendMessage();
+});
+
+async function sendMessage() {
+  const input = document.getElementById("chat-user-input");
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  const messages = document.getElementById("chat-messages");
+  messages.innerHTML += `<div><strong>You:</strong> ${msg}</div>`;
+  input.value = "";
+
+  try {
+    const res = await fetch("/chatbot/chat/", {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken")
+      },
+      body: JSON.stringify({ user_input: msg })
+    });
+
+    const data = await res.json();
+    messages.innerHTML += `<div><strong>Bot:</strong> ${data.answer || data.response || data.error}</div>`;
+
+  } catch (err) {
+    messages.innerHTML += `<div><strong>Bot:</strong> Server error</div>`;
+    
+  }
+
+  messages.scrollTop = messages.scrollHeight;
+}
+
+// Get CSRF token from cookie
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      cookie = cookie.trim();
+      if (cookie.startsWith(name + "=")) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+// 🎤 Voice Input using Web Speech API
+const micButton = document.getElementById("mic-button");
+let recognition;
+
+if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = "en-US";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  micButton.addEventListener("click", () => {
+    // Check microphone permission status
+    navigator.permissions.query({ name: 'microphone' }).then(function(result) {
+      if (result.state === 'granted') {
+        recognition.start();
+        micButton.textContent = "🛑";
+      } else if (result.state === 'denied') {
+        // Show a custom prompt if the permission is denied
+        alert('Microphone access is denied. Please enable microphone permissions for this website.');
+      } else {
+        // If the permission state is "prompt", we can just start the recognition
+        recognition.start();
+        micButton.textContent = "🛑";
+      }
+    }).catch(function(err) {
+      // Handle error (e.g., permissions API not supported)
+      console.error('Error checking microphone permission: ', err);
+      alert('Unable to check microphone permission. Please check your browser settings.');
+    });
+  });
+
+  recognition.onresult = function(event) {
+    const transcript = event.results[0][0].transcript;
+    document.getElementById("chat-user-input").value = transcript;
+    sendMessage();
+  };
+
+  recognition.onerror = function(event) {
+    alert("Voice input error: " + event.error);
+  };
+
+  recognition.onend = function() {
+    micButton.textContent = "🎤";
+  };
+} else {
+  micButton.disabled = true;
+  micButton.title = "Voice not supported";
+}
+</script>

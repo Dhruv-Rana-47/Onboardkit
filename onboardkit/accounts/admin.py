@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Role, Company, Profile
+from .models import User, Role, Company, Profile,Authority
 
 
 # Customize how users appear in admin
@@ -36,3 +36,10 @@ class RoleAdmin(admin.ModelAdmin):
     list_filter = ('company', 'report_to')
     ordering = ('name',)
     fields = ('name', 'company', 'report_to', 'authorities', 'description')
+
+    
+
+@admin.register(Authority)
+class AuthorityAdmin(admin.ModelAdmin):
+    list_display = ('code', 'label')
+    search_fields = ('code', 'label')

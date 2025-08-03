@@ -1,4 +1,7 @@
 def user_authorities(request):
+    if request.path.startswith("/admin/") or not request.user.is_authenticated:
+        return {}
+    
     if request.user.is_authenticated:
         # Fetch authorities based on your permission system
         authorities = set(
@@ -9,3 +12,6 @@ def user_authorities(request):
             'authorities': authorities
         }
     return {}
+
+
+# >>>later implement this change below with upper code ,to not get erro when run first time

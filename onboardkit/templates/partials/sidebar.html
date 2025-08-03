@@ -2,22 +2,25 @@
     <div class="sidebar-inner">
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+                    href="{% url 'dashboard' %}">
                     <i class="bi bi-speedometer2"></i> Dashboard
                 </a>
             </li>
 
             {% if 'view_users' in authorities %}
             <li class="nav-item">
-                <a class="nav-link {% if 'user_list' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'accounts:user_list' %}">
+                <a class="nav-link {% if 'user_list' in request.resolver_match.url_name %}active{% endif %}"
+                    href="{% url 'accounts:user_list' %}">
                     <i class="bi bi-people"></i> User Management
                 </a>
             </li>
             {% endif %}
-             
+
             {% if 'manage_departments' in authorities %}
             <li class="nav-item">
-                <a class="nav-link {% if 'department' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'accounts:department_list' %}">
+                <a class="nav-link {% if 'department' in request.resolver_match.url_name %}active{% endif %}"
+                    href="{% url 'accounts:department_list' %}">
                     <i class="bi bi-building"></i> Department Management
                 </a>
             </li>
@@ -25,7 +28,8 @@
 
             {% if 'manage_roles' in authorities %}
             <li class="nav-item">
-                <a class="nav-link {% if 'role_management' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'accounts:role_management' %}">
+                <a class="nav-link {% if 'role_management' in request.resolver_match.url_name %}active{% endif %}"
+                    href="{% url 'accounts:role_management' %}">
                     <i class="bi bi-shield-lock"></i> Role Management
                 </a>
             </li>
@@ -33,7 +37,8 @@
 
             {% if 'view_hierarchy' in authorities %}
             <li class="nav-item">
-                <a class="nav-link {% if 'company_hierarchy' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'accounts:company_hierarchy' %}">
+                <a class="nav-link {% if 'company_hierarchy' in request.resolver_match.url_name %}active{% endif %}"
+                    href="{% url 'accounts:company_hierarchy' %}">
                     <i class="bi bi-diagram-3"></i> Company Hierarchy
                 </a>
             </li>
@@ -41,7 +46,8 @@
 
             {% if 'view_templates' in authorities %}
             <li class="nav-item">
-                <a class="nav-link {% if 'template' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'onboarding:template_list' %}">
+                <a class="nav-link {% if 'template' in request.resolver_match.url_name %}active{% endif %}"
+                    href="{% url 'onboarding:template_list' %}">
                     <i class="bi bi-file-earmark-text"></i> Templates
                 </a>
             </li>
@@ -49,17 +55,28 @@
 
             {% if 'view_tasks' in authorities %}
             <li class="nav-item">
-                <a class="nav-link {% if 'task' in request.resolver_match.url_name and not 'template' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'onboarding:task_list' %}">
+                <a class="nav-link {% if 'task' in request.resolver_match.url_name and not 'template' in request.resolver_match.url_name %}active{% endif %}"
+                    href="{% url 'onboarding:task_list' %}">
                     <i class="bi bi-list-check"></i> My Tasks
                 </a>
             </li>
             {% endif %}
+            {% if 'view_kpi' in authorities %}
+            <li class="nav-item">
+                <a class="nav-link {% if 'kpi' in request.resolver_match.url_name %}active{% endif %}"
+                    href="{% url 'onboarding:kpi_dashboard' %}">
+                    <i class="bi bi-graph-up-arrow"></i> KPI Dashboard
+                </a>
+            </li>
+            {% endif %}
+
 
             <li class="nav-item">
-                <a class="nav-link {% if 'messaging' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'messaging:inbox' %}">
+                <a class="nav-link {% if 'messaging' in request.resolver_match.url_name %}active{% endif %}"
+                    href="{% url 'messaging:inbox' %}">
                     <i class="bi bi-envelope"></i> Messages
                     {% if user.unread_messages_count > 0 %}
-                        <span class="badge bg-danger rounded-pill">{{ user.unread_messages_count }}</span>
+                    <span class="badge bg-danger rounded-pill">{{ user.unread_messages_count }}</span>
                     {% endif %}
                 </a>
             </li>

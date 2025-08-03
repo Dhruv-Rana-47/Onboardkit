@@ -29,9 +29,9 @@ urlpatterns = [
     path('', account_views.dashboard, name='dashboard'),
     path('users/', include('accounts.urls')),
     path('onboarding/', include(('onboarding.urls', 'onboarding'), namespace='onboarding')),
-
+ path("chatbot/", include("chatbot.urls")),
     path('messages/', include('messaging.urls', namespace='messaging')),
-    path('analytics/', include('analytics.urls')),
+   
 ]
 
 
